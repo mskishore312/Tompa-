@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'screens/company_screen.dart';
+
 void main() {
   runApp(const TompaApp());
 }
@@ -27,21 +29,18 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final modules = <TompaModule>[
-      TompaModule('Companies', Icons.business, 'Create, edit, and select companies'),
-      TompaModule('Masters', Icons.account_tree, 'Groups, ledgers, stock items, units'),
-      TompaModule('Vouchers', Icons.receipt_long, 'Receipt, payment, contra, journal, sales, purchase'),
-      TompaModule('Reports', Icons.bar_chart, 'Day book, ledger, trial balance, P&L, balance sheet'),
-      TompaModule('GST', Icons.percent, 'GST registers, GSTR-1, GSTR-3B summaries'),
-      TompaModule('Backup & Export', Icons.backup, 'PDF, Excel, JSON backup, Tally export roadmap'),
-      TompaModule('AI Assistant', Icons.smart_toy, 'Ledger suggestion, bill extraction, voice entry roadmap'),
-      TompaModule('Settings', Icons.settings, 'Financial year, security, app preferences'),
+      TompaModule('Companies', Icons.business, 'Create, edit, and select companies', () => const CompanyScreen()),
+      TompaModule('Masters', Icons.account_tree, 'Groups, ledgers, stock items, units', null),
+      TompaModule('Vouchers', Icons.receipt_long, 'Receipt, payment, contra, journal, sales, purchase', null),
+      TompaModule('Reports', Icons.bar_chart, 'Day book, ledger, trial balance, P&L, balance sheet', null),
+      TompaModule('GST', Icons.percent, 'GST registers, GSTR-1, GSTR-3B summaries', null),
+      TompaModule('Backup & Export', Icons.backup, 'PDF, Excel, JSON backup, Tally export roadmap', null),
+      TompaModule('AI Assistant', Icons.smart_toy, 'Ledger suggestion, bill extraction, voice entry roadmap', null),
+      TompaModule('Settings', Icons.settings, 'Financial year, security, app preferences', null),
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('TOMPA'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('TOMPA'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -82,12 +81,10 @@ class _HeroCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Create companies, maintain ledgers, record vouchers, view reports, and gradually add AI-assisted accounting workflows.',
-            ),
+            const Text('Create companies, maintain ledgers, record vouchers, view reports, and gradually add AI-assisted accounting workflows.'),
             const SizedBox(height: 12),
             FilledButton.icon(
-              onPressed: () {},
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CompanyScreen())),
               icon: const Icon(Icons.add_business),
               label: const Text('Create Company'),
             ),
@@ -108,10 +105,13 @@ class ModuleCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => PlaceholderScreen(module: module)),
-        ),
+        onTap: () {
+          if (module.screenBuilder != null) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => module.screenBuilder!()));
+          } else {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => PlaceholderScreen(module: module)));
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(14),
           child: Column(
@@ -119,17 +119,9 @@ class ModuleCard extends StatelessWidget {
             children: [
               Icon(module.icon, size: 32),
               const Spacer(),
-              Text(
-                module.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
+              Text(module.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
-              Text(
-                module.subtitle,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(module.subtitle, maxLines: 3, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
         ),
@@ -154,14 +146,11 @@ class PlaceholderScreen extends StatelessWidget {
           children: [
             Icon(module.icon, size: 48),
             const SizedBox(height: 16),
-            Text(
-              module.title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text(module.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(module.subtitle),
             const SizedBox(height: 24),
-            const Text('This module is a placeholder for the MVP implementation.'),
+            const Text('This module is a placeholder for the next MVP implementation.'),
           ],
         ),
       ),
@@ -170,9 +159,10 @@ class PlaceholderScreen extends StatelessWidget {
 }
 
 class TompaModule {
-  const TompaModule(this.title, this.icon, this.subtitle);
+  const TompaModule(this.title, this.icon, this.subtitle, this.screenBuilder);
 
   final String title;
   final IconData icon;
   final String subtitle;
+  final Widget Function()? screenBuilder;
 }
