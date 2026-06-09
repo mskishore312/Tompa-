@@ -37,7 +37,7 @@ class InvoiceDraft {
   final DateTime date;
   final String? invoiceNumber;
 
-  double get taxableValue => lines.fold(0, (sum, line) => sum + line.taxableValue);
-  double get gstAmount => lines.fold(0, (sum, line) => sum + line.gstAmount);
-  double get total => lines.fold(0, (sum, line) => sum + line.total);
+  double get taxableValue => lines.fold<double>(0, (sum, line) => sum + line.taxableValue);
+  double get gstAmount => lines.fold<double>(0, (sum, line) => sum + line.gstAmount);
+  double get total => lines.fold<double>(0, (sum, line) => sum + line.total);
 }
