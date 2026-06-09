@@ -20,7 +20,10 @@ class _VoucherScreenState extends State<VoucherScreen> {
   Ledger? _creditLedger;
   String _type = 'Journal';
   final _amount = TextEditingController();
+  final _gstRate = TextEditingController(text: '0');
   final _narration = TextEditingController();
+
+  bool get _isGstVoucher => _type == 'Sales' || _type == 'Purchase';
 
   @override
   void initState() {
@@ -39,6 +42,12 @@ class _VoucherScreenState extends State<VoucherScreen> {
 
   Future<void> _save() async {
     final amount = double.tryParse(_amount.text.trim()) ?? 0;
+    final gstRate = double.tryParse(_gstRate.text.trim()) ?? 0;
+    final tax = _isGstVoucher ? amount * gstRate / 100 : 0.0;
+    final totalAmount = amount + tax;
+    final cgst = _isGstVoucher ? tax / 2 : 0.0;
+    final sgst = _isGstVoucher ? tax / 2 : 0.0;
+
     if (_debitLedger == null || _creditLedger == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select ledgers and enter amount')));
       return;
@@ -47,10 +56,20 @@ class _VoucherScreenState extends State<VoucherScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Debit and credit ledger cannot be same')));
       return;
     }
-    final voucher = Voucher(companyId: widget.company.id!, type: _type, date: DateTime.now(), narration: _narration.text.trim());
+
+    final voucher = Voucher(
+      companyId: widget.company.id!,
+      type: _type,
+      date: DateTime.now(),
+      narration: _narration.text.trim(),
+      taxableValue: _isGstVoucher ? amount : 0,
+      gstRate: _isGstVoucher ? gstRate : 0,
+      cgst: cgst,
+      sgst: sgst,
+    );
     final entries = [
-      VoucherEntry(ledgerId: _debitLedger!.id!, ledgerName: _debitLedger!.name, dr: amount, cr: 0),
-      VoucherEntry(ledgerId: _creditLedger!.id!, ledgerName: _creditLedger!.name, dr: 0, cr: amount),
+      VoucherEntry(ledgerId: _debitLedger!.id!, ledgerName: _debitLedger!.name, dr: totalAmount, cr: 0),
+      VoucherEntry(ledgerId: _creditLedger!.id!, ledgerName: _creditLedger!.name, dr: 0, cr: totalAmount),
     ];
     await AppDatabase.instance.insertVoucher(voucher, entries);
     if (!mounted) return;
@@ -62,6 +81,7 @@ class _VoucherScreenState extends State<VoucherScreen> {
   @override
   void dispose() {
     _amount.dispose();
+    _gstRate.dispose();
     _narration.dispose();
     super.dispose();
   }
@@ -95,15 +115,9 @@ class _VoucherScreenState extends State<VoucherScreen> {
                   items: _ledgers.map((l) => DropdownMenuItem(value: l, child: Text(l.name))).toList(),
                   onChanged: (value) => setState(() => _creditLedger = value),
                 ),
-                TextField(
-                  controller: _amount,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Amount'),
-                ),
-                TextField(
-                  controller: _narration,
-                  decoration: const InputDecoration(labelText: 'Narration'),
-                ),
+                TextField(controller: _amount, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: _isGstVoucher ? 'Taxable value' : 'Amount')),
+                if (_isGstVoucher) TextField(controller: _gstRate, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'GST rate %')),
+                TextField(controller: _narration, decoration: const InputDecoration(labelText: 'Narration')),
                 const SizedBox(height: 24),
                 FilledButton.icon(onPressed: _save, icon: const Icon(Icons.save), label: const Text('Save Voucher')),
               ],
