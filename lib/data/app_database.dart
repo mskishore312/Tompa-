@@ -134,4 +134,20 @@ class AppDatabase {
       ORDER BY l.name
     ''', [companyId]);
   }
+
+  Future<List<Map<String, Object?>>> getProfitAndLoss(int companyId) async {
+    final tb = await getTrialBalance(companyId);
+    return tb.where((row) {
+      final group = row['group_name'] as String;
+      return group.contains('Sales') || group.contains('Purchase') || group.contains('Expense') || group.contains('Income');
+    }).toList();
+  }
+
+  Future<List<Map<String, Object?>>> getBalanceSheet(int companyId) async {
+    final tb = await getTrialBalance(companyId);
+    return tb.where((row) {
+      final group = row['group_name'] as String;
+      return group.contains('Cash') || group.contains('Bank') || group.contains('Debtor') || group.contains('Creditor') || group.contains('Capital') || group.contains('Duties');
+    }).toList();
+  }
 }
