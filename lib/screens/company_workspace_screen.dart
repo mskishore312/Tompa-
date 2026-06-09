@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/company.dart';
+import '../widgets/tompa_menu.dart';
 import 'backup_screen.dart';
 import 'invoice_screen.dart';
 import 'ledger_screen.dart';
@@ -14,71 +15,20 @@ class CompanyWorkspaceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(company.name)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _Tile(
-            icon: Icons.account_balance_wallet,
-            title: 'Ledgers',
-            subtitle: 'Create and view account ledgers',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LedgerScreen(company: company))),
-          ),
-          _Tile(
-            icon: Icons.receipt_long,
-            title: 'Vouchers',
-            subtitle: 'Post receipt, payment, contra and journal entries',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VoucherScreen(company: company))),
-          ),
-          _Tile(
-            icon: Icons.sell,
-            title: 'Sales Invoice',
-            subtitle: 'Create invoice with inventory or without inventory and export PDF',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => InvoiceScreen(company: company, type: 'Sales'))),
-          ),
-          _Tile(
-            icon: Icons.shopping_cart,
-            title: 'Purchase Invoice',
-            subtitle: 'Record purchase with inventory or without inventory and export PDF',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => InvoiceScreen(company: company, type: 'Purchase'))),
-          ),
-          _Tile(
-            icon: Icons.bar_chart,
-            title: 'Reports',
-            subtitle: 'Day book, trial balance, P&L, balance sheet and GST summary',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReportsScreen(company: company))),
-          ),
-          _Tile(
-            icon: Icons.backup,
-            title: 'Backup & Export',
-            subtitle: 'Generate JSON backup for the company data',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BackupScreen(company: company))),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Tile extends StatelessWidget {
-  const _Tile({required this.icon, required this.title, required this.subtitle, required this.onTap});
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
-      ),
+    return TompaClassicScreen(
+      title: 'Gateway',
+      children: [
+        TompaHeader(title: 'Gateway', subtitle: company.name),
+        TompaMenuButton(label: 'Masters', icon: Icons.account_tree, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LedgerScreen(company: company)))),
+        TompaMenuButton(label: 'Accounting Vouchers', icon: Icons.receipt_long, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VoucherScreen(company: company)))),
+        TompaMenuButton(label: 'Sales Invoice', icon: Icons.sell, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => InvoiceScreen(company: company, type: 'Sales')))),
+        TompaMenuButton(label: 'Purchase Invoice', icon: Icons.shopping_cart, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => InvoiceScreen(company: company, type: 'Purchase')))),
+        TompaMenuButton(label: 'Reports', icon: Icons.bar_chart, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReportsScreen(company: company)))),
+        TompaMenuButton(label: 'Registers', icon: Icons.list_alt, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReportsScreen(company: company)))),
+        TompaMenuButton(label: 'GST Reports', icon: Icons.percent, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReportsScreen(company: company)))),
+        TompaMenuButton(label: 'Utility', icon: Icons.build, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BackupScreen(company: company)))),
+        TompaMenuButton(label: 'Back', icon: Icons.arrow_back, onTap: () => Navigator.pop(context)),
+      ],
     );
   }
 }
