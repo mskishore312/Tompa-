@@ -9,12 +9,29 @@ void main() {
 class TompaApp extends StatelessWidget {
   const TompaApp({super.key});
 
+  static const _green = Color(0xFF126245);
+  static const _yellow = Color(0xFFFFC400);
+  static const _cream = Color(0xFFE3F0DF);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TOM-PA',
-      theme: ThemeData(useMaterial3: true, fontFamily: 'serif'),
+      theme: ThemeData(
+        useMaterial3: true,
+        fontFamily: 'serif',
+        scaffoldBackgroundColor: _green,
+        colorScheme: ColorScheme.fromSeed(seedColor: _green, primary: _green, secondary: _yellow, surface: _cream),
+        appBarTheme: const AppBarTheme(backgroundColor: _green, foregroundColor: Colors.white, centerTitle: true, titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+        cardTheme: CardThemeData(color: _cream, elevation: 2, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2), side: const BorderSide(color: Colors.white, width: 1.2))),
+        inputDecorationTheme: const InputDecorationTheme(filled: true, fillColor: _cream, border: OutlineInputBorder(), labelStyle: TextStyle(color: _green, fontWeight: FontWeight.bold)),
+        listTileTheme: const ListTileThemeData(tileColor: _cream, iconColor: _green, textColor: _green),
+        filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(backgroundColor: _yellow, foregroundColor: _green, textStyle: const TextStyle(fontWeight: FontWeight.w900))),
+        elevatedButtonTheme: ElevatedButtonThemeData(style: ElevatedButton.styleFrom(backgroundColor: _cream, foregroundColor: _green, textStyle: const TextStyle(fontWeight: FontWeight.w900))),
+        outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(foregroundColor: _yellow, side: const BorderSide(color: _yellow, width: 1.5))),
+        tabBarTheme: const TabBarThemeData(labelColor: _yellow, unselectedLabelColor: Colors.white, indicatorColor: _yellow),
+      ),
       home: const TompaHomeScreen(),
     );
   }
