@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/company.dart';
+import 'backup_screen.dart';
 import 'ledger_screen.dart';
 import 'reports_screen.dart';
 import 'voucher_screen.dart';
@@ -32,8 +33,14 @@ class CompanyWorkspaceScreen extends StatelessWidget {
           _Tile(
             icon: Icons.bar_chart,
             title: 'Reports',
-            subtitle: 'Day book and trial balance',
+            subtitle: 'Day book, trial balance, P&L, balance sheet and GST summary',
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReportsScreen(company: company))),
+          ),
+          _Tile(
+            icon: Icons.backup,
+            title: 'Backup & Export',
+            subtitle: 'Generate JSON backup for the company data',
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BackupScreen(company: company))),
           ),
         ],
       ),
