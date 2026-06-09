@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/app_database.dart';
 import '../models/company.dart';
+import '../widgets/tompa_menu.dart';
 import 'company_workspace_screen.dart';
 
 class CompanyScreen extends StatefulWidget {
@@ -33,31 +34,39 @@ class _CompanyScreenState extends State<CompanyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Companies')),
-      floatingActionButton: FloatingActionButton.extended(onPressed: _addCompany, icon: const Icon(Icons.add_business), label: const Text('Company')),
-      body: FutureBuilder<List<Company>>(
-        future: _companies,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          final companies = snapshot.data!;
-          if (companies.isEmpty) return const Center(child: Text('No companies yet. Tap + Company to create one.'));
-          return ListView.separated(
-            itemCount: companies.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final company = companies[index];
-              return ListTile(
-                leading: const Icon(Icons.business),
-                title: Text(company.name),
-                subtitle: Text('FY ${company.fromDate.year}-${company.toDate.year}${company.gstin == null ? '' : ' • GSTIN ${company.gstin}'}'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CompanyWorkspaceScreen(company: company))),
+    return TompaClassicScreen(
+      title: 'Select Company',
+      children: [
+        const TompaHeader(title: 'Select Company', subtitle: 'TOM-PA (Tally On Mobile)'),
+        TompaMenuButton(label: 'Create Company', icon: Icons.add_business, onTap: _addCompany),
+        const SizedBox(height: 10),
+        FutureBuilder<List<Company>>(
+          future: _companies,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Colors.white));
+            final companies = snapshot.data!;
+            if (companies.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('No companies created. Use Create Company.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               );
-            },
-          );
-        },
-      ),
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final company in companies)
+                  TompaMenuButton(
+                    label: company.name,
+                    icon: Icons.business,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CompanyWorkspaceScreen(company: company))),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 10),
+        TompaMenuButton(label: 'Back', icon: Icons.arrow_back, onTap: () => Navigator.pop(context)),
+      ],
     );
   }
 }
@@ -84,7 +93,8 @@ class _CompanyDialogState extends State<CompanyDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Create Company'),
+      backgroundColor: TompaColors.cream,
+      title: const Text('Create Company', style: TextStyle(color: TompaColors.green, fontWeight: FontWeight.bold)),
       content: Form(
         key: _formKey,
         child: Column(
@@ -98,6 +108,7 @@ class _CompanyDialogState extends State<CompanyDialog> {
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
         FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: TompaColors.green),
           onPressed: () {
             if (!_formKey.currentState!.validate()) return;
             Navigator.pop(context, Company(name: _name.text.trim(), fromDate: DateTime(DateTime.now().year, 4, 1), toDate: DateTime(DateTime.now().year + 1, 3, 31), gstin: _gstin.text.trim().isEmpty ? null : _gstin.text.trim()));
