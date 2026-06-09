@@ -18,6 +18,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   late Future<List<Map<String, Object?>>> _trialBalance;
   late Future<List<Map<String, Object?>>> _profitAndLoss;
   late Future<List<Map<String, Object?>>> _balanceSheet;
+  late Future<Map<String, double>> _gstSummary;
 
   @override
   void initState() {
@@ -30,18 +31,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
     _trialBalance = AppDatabase.instance.getTrialBalance(widget.company.id!);
     _profitAndLoss = AppDatabase.instance.getProfitAndLoss(widget.company.id!);
     _balanceSheet = AppDatabase.instance.getBalanceSheet(widget.company.id!);
+    _gstSummary = AppDatabase.instance.getGstSummary(widget.company.id!);
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: Text('${widget.company.name} - Reports'),
           bottom: const TabBar(
             isScrollable: true,
-            tabs: [Tab(text: 'Day Book'), Tab(text: 'Trial Balance'), Tab(text: 'P&L'), Tab(text: 'Balance Sheet')],
+            tabs: [Tab(text: 'Day Book'), Tab(text: 'Trial Balance'), Tab(text: 'P&L'), Tab(text: 'Balance Sheet'), Tab(text: 'GST')],
           ),
         ),
         body: TabBarView(
@@ -50,6 +52,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             _LedgerBalanceReport(title: 'Trial Balance', future: _trialBalance),
             _LedgerBalanceReport(title: 'Profit & Loss', future: _profitAndLoss),
             _LedgerBalanceReport(title: 'Balance Sheet', future: _balanceSheet),
+            _GstSummary(future: _gstSummary),
           ],
         ),
       ),
@@ -127,6 +130,51 @@ class _LedgerBalanceReport extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _GstSummary extends StatelessWidget {
+  const _GstSummary({required this.future});
+
+  final Future<Map<String, double>> future;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<String, double>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        final data = snapshot.data!;
+        final totalTax = data['cgst']! + data['sgst']! + data['igst']!;
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _AmountTile(label: 'Taxable Value', amount: data['taxable']!),
+            _AmountTile(label: 'CGST', amount: data['cgst']!),
+            _AmountTile(label: 'SGST', amount: data['sgst']!),
+            _AmountTile(label: 'IGST', amount: data['igst']!),
+            const Divider(),
+            _AmountTile(label: 'Total GST', amount: totalTax, bold: true),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _AmountTile extends StatelessWidget {
+  const _AmountTile({required this.label, required this.amount, this.bold = false});
+
+  final String label;
+  final double amount;
+  final bool bold;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(label, style: bold ? const TextStyle(fontWeight: FontWeight.bold) : null),
+      trailing: Text('₹${amount.toStringAsFixed(2)}', style: bold ? const TextStyle(fontWeight: FontWeight.bold) : null),
     );
   }
 }
