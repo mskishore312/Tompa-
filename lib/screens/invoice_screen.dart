@@ -57,9 +57,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   void _addLine() {
-    final rate = double.tryParse(_rate.text.trim()) ?? 0;
-    final qty = _withInventory ? (double.tryParse(_qty.text.trim()) ?? 1) : 1;
-    final gst = double.tryParse(_gst.text.trim()) ?? 0;
+    final double rate = double.tryParse(_rate.text.trim()) ?? 0.0;
+    final double qty = _withInventory ? (double.tryParse(_qty.text.trim()) ?? 1.0) : 1.0;
+    final double gst = double.tryParse(_gst.text.trim()) ?? 0.0;
     if (_description.text.trim().isEmpty || rate <= 0) return;
     setState(() {
       _lines.add(InvoiceLine(description: _description.text.trim(), quantity: qty, rate: rate, gstRate: gst, hsn: _withInventory ? _hsn.text.trim() : null, unit: _withInventory ? _unit.text.trim() : null));
